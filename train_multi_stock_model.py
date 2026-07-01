@@ -40,7 +40,7 @@ TICKERS = [
 START_DATE = "2015-01-01"
 END_DATE = None
 LOOKBACK = 100
-EPOCHS = 20
+EPOCHS = 30
 BATCH_SIZE = 32
 
 # -------------------------
