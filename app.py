@@ -130,27 +130,39 @@ if ticker:
         st.line_chart(df["Close"])
 
         # -------------------------
-        # PREP DATA
+        # -------------------------
+        # PREP DATA (FIXED)
         # -------------------------
         data = df["Close"].values.reshape(-1, 1)
-        scaled_data = scaler.transform(data)
+
+        if ticker in scalers:
+            scaler = scalers[ticker]
+            scaled_data = scaler.transform(data)
+        else:
+            st.info(f"{ticker} wasn't in training set — using fresh scaler")
+            scaler = MinMaxScaler(feature_range=(0, 1))
+            scaled_data = scaler.fit_transform(data)
 
         if len(scaled_data) < LOOKBACK:
             st.error("Not enough data for prediction")
         else:
 
+            # last 100 days → input
             x_input = scaled_data[-LOOKBACK:].reshape(1, LOOKBACK, 1)
 
             # -------------------------
-            # PREDICT
+            # PREDICT NEXT DAY
             # -------------------------
-            pred_scaled = model.predict(x_input)
+            pred_scaled = model.predict(x_input, verbose=0)
             pred_price = scaler.inverse_transform(pred_scaled)[0][0]
-            current_price = df["Close"].tail(1).values[0]
 
+            # latest actual price
+            current_price = data[-1][0]
 
+            # -------------------------
             # SIGNAL
-            threshold = 0.005   # 0.5%
+            # -------------------------
+            threshold = 0.005
 
             if pred_price > current_price * (1 + threshold):
                 signal = "BUY 📈"
@@ -159,12 +171,15 @@ if ticker:
             else:
                 signal = "HOLD ⏸"
 
+            # -------------------------
             # CONFIDENCE
+            # -------------------------
             confidence = 100 - abs((pred_price - current_price) / current_price) * 100
-            confidence = max(0, min(100, confidence))
-            confidence = float(confidence)
+            confidence = float(max(0, min(100, confidence)))
 
+            # -------------------------
             # DISPLAY
+            # -------------------------
             st.subheader("Trading Signal")
 
             if signal == "BUY 📈":
@@ -174,9 +189,8 @@ if ticker:
             else:
                 st.warning(signal)
 
-            st.write(f"Predicted Price: {pred_price:.2f}")
-            current_price = float(df["Close"].iloc[-1])
-            st.write(f"Current Price : {current_price}")
+            st.write(f"Current Price: {current_price:.2f}")
+            st.write(f"Predicted Next Day Price: {pred_price:.2f}")
             st.write(f"Confidence: {confidence:.2f}%")
 
             # -------------------------

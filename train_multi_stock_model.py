@@ -28,15 +28,19 @@ from keras.layers import LSTM, Dense, Dropout
 # CONFIG
 # -------------------------
 TICKERS = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "META",
-    "TSLA", "NVDA", "JPM", "V", "WMT",
-    "JNJ", "PG", "DIS", "NFLX", "INTC",
+    "AAPL", "GOOGL", "AMZN",
+    "TSLA", "NVDA",
+    "BPCL" ,     
+    "RELIANCE.NS",
+    "SUNPHARMA.NS",
+    "STARHEALTH.NS",
+    "IRME.NS"
 ]
 
 START_DATE = "2015-01-01"
-END_DATE = "2025-01-01"
+END_DATE = None
 LOOKBACK = 100
-EPOCHS = 15
+EPOCHS = 20
 BATCH_SIZE = 32
 
 # -------------------------
