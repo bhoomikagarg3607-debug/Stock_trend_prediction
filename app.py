@@ -104,7 +104,7 @@ if ticker:
     # -------------------------
     # LOAD DATA
     # -------------------------
-    df = yf.download(ticker, start="2015-01-01", end="2025-01-01")
+    df = yf.download(ticker, start="2015-01-01", end=None)
 
     data = df["Close"].values.reshape(-1, 1)
 
@@ -200,6 +200,10 @@ if ticker:
 
             # optional comparison
             st.write("Last Actual Price:", df["Close"].iloc[-1])
+
+
+
+
 
 
 

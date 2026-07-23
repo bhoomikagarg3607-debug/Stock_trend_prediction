@@ -5,8 +5,17 @@ import pickle
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from pymongo import MongoClient
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # LOAD MODEL
 model = load_model("model/multi_stock_lstm_model.h5")
@@ -21,6 +30,10 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["stock_db"]
 collection = db["predictions"]
 
+collection.insert_one({
+    "stock":"AAPL" ,
+    "prediction":215.5
+})
 
 @app.get("/predict")
 def predict(ticker: str):
@@ -46,6 +59,12 @@ def predict(ticker: str):
     pred_price = scaler.inverse_transform(pred_scaled)[0][0]
 
     current_price = float(df["Close"].iloc[-1])
+
+    collection.insert_one({
+    "ticker": ticker,
+    "current_price": current_price,
+    "predicted_price": float(pred_price)
+    })
 
     return {
         "ticker": ticker,
